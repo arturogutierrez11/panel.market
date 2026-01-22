@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { MARKETPLACES } from '@/src/config/marketplace/marketplaces';
-import { getLastSyncRun } from '@/src/service/productSync.read';
 import MarketplaceDetailClient from './MarketplaceDetailClient';
+import { getLastSyncRun } from '@/src/service/productSync.read';
 
 type Props = {
   params: Promise<{
