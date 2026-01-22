@@ -21,6 +21,7 @@ export type MarketplaceProduct = {
   stock: number;
   status: string;
   images: string[];
+  LinkPublicacion: string
 };
 
 type MarketplaceProductsResponse = {
