@@ -8,7 +8,8 @@ import MarketplaceOverview from '@/src/components/marketplace/MarketplaceOvervie
 import RefreshOverviewButton from '@/src/components/marketplace/RefreshOverviewButton';
 import RunSyncButton from '@/src/components/marketplace/SyncActions';
 import MarketplaceActions from '@/src/components/marketplace/MarketplaceActions';
-import MarketplaceProductStatus from '@/src/components/marketplace/MarketplaceProductStatus';
+import MarketplaceProductDetails from '@/src/components/marketplace/MarketplaceProductDetails';
+import MarketplaceProductList from '@/src/components/marketplace/MarketplaceProductList';
 
 type SyncOverview = {
   status: 'SUCCESS' | 'ERROR' | 'RUNNING';
@@ -93,10 +94,15 @@ export default function MarketplaceDetailClient({
             isRunning={overview.status === 'RUNNING'}
           />
 
+          
           {/* ESTADO DE PRODUCTOS */}
-          <MarketplaceProductStatus
-            marketplaceId={marketplace.id}
-          />
+<MarketplaceProductDetails
+  marketplaceId={marketplace.id}
+/>
+{/* PRODUCTOS EN MARKETPLACE */}
+<MarketplaceProductList
+  marketplaceId={marketplace.id}
+/>
         </>
       )}
     </div>

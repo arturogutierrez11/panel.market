@@ -5,15 +5,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'm.media-amazon.com',
-      },
-      {
-        protocol: 'http',
-        hostname: 'http2.mlstatic.com',
+        hostname: 'www.megatone.net',
       },
       {
         protocol: 'https',
         hostname: 'http2.mlstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'm.media-amazon.com',
       },
     ],
   },
