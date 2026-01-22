@@ -65,33 +65,25 @@ export default function MarketplaceProductList({
           </p>
         </div>
 
-        {/* Refresh */}
         <button
           onClick={refresh}
           disabled={loading}
           className="
             inline-flex items-center gap-2
-            rounded-lg
-            border
-            px-4 py-2
-            text-sm
-            text-black
-            bg-white
-            hover:bg-gray-50
+            rounded-lg border
+            px-3 py-2
+            text-sm text-black
+            bg-white hover:bg-gray-50
             disabled:opacity-40
           "
         >
-          <span
-            className={`text-black ${loading ? 'animate-spin' : ''}`}
-          >
-            ⟳
-          </span>
+          <span className={loading ? 'animate-spin' : ''}>⟳</span>
           Refrescar
         </button>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {loading && items.length === 0
           ? Array.from({ length: PAGE_SIZE }).map((_, i) => (
               <SkeletonCard key={i} />
@@ -108,10 +100,7 @@ export default function MarketplaceProductList({
       <div className="flex items-center justify-between pt-4">
         <div className="text-sm text-gray-500">
           Página{' '}
-          <span className="font-medium text-gray-900">
-            {page}
-          </span>{' '}
-          de{' '}
+          <span className="font-medium text-gray-900">{page}</span> de{' '}
           <span className="font-medium text-gray-900">
             {totalPages || 1}
           </span>
@@ -122,13 +111,10 @@ export default function MarketplaceProductList({
             onClick={() => fetchPage(page - 1)}
             disabled={page === 1 || loading}
             className="
-              rounded-lg
-              border
-              px-4 py-2
-              text-sm
-              text-black
-              bg-white
-              hover:bg-gray-50
+              rounded-lg border
+              px-3 py-2
+              text-sm text-black
+              bg-white hover:bg-gray-50
               disabled:opacity-40
             "
           >
@@ -139,13 +125,10 @@ export default function MarketplaceProductList({
             onClick={() => fetchPage(page + 1)}
             disabled={page === totalPages || loading}
             className="
-              rounded-lg
-              border
-              px-4 py-2
-              text-sm
-              text-black
-              bg-white
-              hover:bg-gray-50
+              rounded-lg border
+              px-3 py-2
+              text-sm text-black
+              bg-white hover:bg-gray-50
               disabled:opacity-40
             "
           >
@@ -158,7 +141,7 @@ export default function MarketplaceProductList({
       {loading && items.length > 0 && (
         <div className="absolute inset-0 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center">
           <div className="flex items-center gap-2 text-sm text-black">
-            <span className="animate-spin text-black">⟳</span>
+            <span className="animate-spin">⟳</span>
             Actualizando productos…
           </div>
         </div>
@@ -167,7 +150,9 @@ export default function MarketplaceProductList({
   );
 }
 
-/* ---------- Card ---------- */
+/* =========================
+ * Card
+ * ========================= */
 
 function ProductCard({ product }: { product: MarketplaceProduct }) {
   const image = product.images?.[0];
@@ -178,60 +163,101 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
       : 'bg-red-100 text-red-700';
 
   return (
-    <div className="rounded-xl border bg-white p-4 space-y-3 transition hover:shadow-md">
+    <div
+      className="
+        rounded
+        border
+        bg-white
+        p-2
+        space-y-1
+        transition
+        duration-200
+        ease-out
+        hover:scale-[1.03]
+        hover:shadow-md
+        will-change-transform
+      "
+    >
       {/* Imagen */}
-      <div className="relative h-36 w-full rounded-lg bg-gray-50 overflow-hidden">
+      <div className="relative h-20 w-full rounded bg-gray-50 overflow-hidden">
         {image && (
           <Image
             src={image}
             alt={product.title}
             fill
-            sizes="(max-width: 1024px) 33vw"
-            className="object-contain p-3"
+            sizes="(max-width: 1280px) 14vw"
+            className="object-contain p-1"
           />
         )}
       </div>
 
-      <div className="space-y-1">
-        <div className="text-xs text-gray-400">
-          SKU {product.sellerSku}
-        </div>
+      {/* SKU */}
+      <div className="text-[9px] text-black truncate">
+        {product.sellerSku}  - {product.publicationId}
+      </div>
 
-        <div className="text-sm font-medium text-gray-900 line-clamp-2">
-          {product.title}
-        </div>
+      {/* Título */}
+      <div className="text-[11px] font-medium text-gray-900 line-clamp-2 leading-tight">
+        {product.title}
+      </div>
 
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-900">
-            ${product.price.toLocaleString()}
-          </span>
-          <span className="text-sm text-gray-500">
-            Stock {product.stock}
-          </span>
-        </div>
-
-        <span
-          className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${statusStyle}`}
-        >
-          {product.status}
+      {/* Precio / Stock */}
+      <div className="flex justify-between items-center text-[11px]">
+        <span className="font-semibold text-black">
+          ${product.price.toLocaleString()}
+        </span>
+        <span className="text-black font-semibold ">
+          {product.stock}
         </span>
       </div>
+
+      {/* Status */}
+      <span
+        className={`inline-block rounded px-4 py-[1px] text-[9px] font-medium ${statusStyle}`}
+      >
+        {product.status}
+      </span>
+
+      {/* Botón link (chico y prolijo) */}
+      {product.LinkPublicacion && (
+        <a
+          href={product.LinkPublicacion}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="
+            mt-1
+            inline-flex
+            items-center
+            justify-center
+            gap-1
+            rounded
+            border
+            border-black/20
+            px-4 py-0.5
+            text-[9px]
+            text-black
+          "
+        >
+          Ver producto
+        </a>
+      )}
     </div>
   );
 }
 
-/* ---------- Skeleton ---------- */
+/* =========================
+ * Skeleton
+ * ========================= */
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl border bg-white p-4 space-y-3 animate-pulse">
-      <div className="h-36 w-full rounded-lg bg-gray-200" />
-      <div className="h-3 w-24 bg-gray-200 rounded" />
-      <div className="h-4 w-full bg-gray-200 rounded" />
-      <div className="h-4 w-2/3 bg-gray-200 rounded" />
+    <div className="rounded border bg-white p-2 space-y-1 animate-pulse">
+      <div className="h-20 w-full rounded bg-gray-200" />
+      <div className="h-2 w-16 bg-gray-200 rounded" />
+      <div className="h-3 w-full bg-gray-200 rounded" />
       <div className="flex justify-between">
-        <div className="h-4 w-20 bg-gray-200 rounded" />
-        <div className="h-4 w-16 bg-gray-200 rounded" />
+        <div className="h-3 w-10 bg-gray-200 rounded" />
+        <div className="h-3 w-8 bg-gray-200 rounded" />
       </div>
     </div>
   );
