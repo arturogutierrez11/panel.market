@@ -4,7 +4,11 @@ import { HttpClient } from '../../../../http/httpClient';
 import { IGetOncityProductsRepository } from '@/src/core/adapters/repository/marketplace/oncity/products/get/IGetOncityProductRepository';
 
 type OncityProductsApiResponse = {
-  items: MarketplaceProduct[];
+  items: Array<
+    MarketplaceProduct & {
+      linkPublicacion?: string;
+    }
+  >;
   total: number;
   limit: number;
   offset: number;
@@ -36,13 +40,30 @@ export class GetOncityProductsRepository
         `/oncity/products/all?offset=${offset}&limit=${limit}`
       );
 
+    /* =========================
+     * Normalización de items
+     * ========================= */
+    const normalizedItems: MarketplaceProduct[] =
+      response.items.map(item => ({
+        ...item,
+
+        // 🔴 FIX CLAVE: el link ahora existe en el front
+        publicationUrl:
+          item.publicationUrl ??
+          item.linkPublicacion ??
+          undefined,
+      }));
+
+    /* =========================
+     * Orden por estado
+     * ========================= */
     const statusOrder: Record<string, number> = {
       ACTIVE: 0,
       PAUSED: 1,
       DELETED: 2,
     };
 
-    const sortedItems = [...response.items].sort(
+    const sortedItems = normalizedItems.sort(
       (a, b) =>
         (statusOrder[a.status] ?? 99) -
         (statusOrder[b.status] ?? 99)

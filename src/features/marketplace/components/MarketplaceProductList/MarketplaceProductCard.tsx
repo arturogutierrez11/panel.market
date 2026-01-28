@@ -5,20 +5,46 @@ type Props = {
   product: MarketplaceProduct;
 };
 
+const PLACEHOLDER_IMAGE =
+  'https://tiendaloquieroaca924.vtexassets.com/assets/vtex.catalog-images/products/examplePhoneImageBlue.png';
+
 export function MarketplaceProductCard({ product }: Props) {
-  const image = product.images?.[0];
+  const image =
+    product.images?.[0] &&
+    product.images[0] !== PLACEHOLDER_IMAGE
+      ? product.images[0]
+      : null;
 
-  let statusStyle = 'bg-gray-100 text-gray-800';
+  /* =========================
+   * Status normalization
+   * ========================= */
+  const normalizedStatus = product.status
+    ?.toString()
+    .toUpperCase()
+    .trim();
 
-  switch (product.status) {
+  let statusDot = 'bg-gray-400';
+  let statusText = 'text-gray-700';
+  let statusLabel = normalizedStatus ?? 'Desconocido';
+
+  switch (normalizedStatus) {
     case 'ACTIVE':
-      statusStyle = 'bg-green-100 text-green-800';
+    case 'ACTIVO':
+      statusDot = 'bg-green-500';
+      statusLabel = 'Activo';
       break;
+
     case 'PAUSED':
-      statusStyle = 'bg-yellow-100 text-yellow-800';
+    case 'PAUSADO':
+    case 'INACTIVE':
+      statusDot = 'bg-red-400';
+      statusLabel = 'Inactivo';
       break;
+
     case 'DELETED':
-      statusStyle = 'bg-red-100 text-red-800';
+    case 'ELIMINADO':
+      statusDot = 'bg-red-500';
+      statusLabel = 'Eliminado';
       break;
   }
 
@@ -42,11 +68,11 @@ export function MarketplaceProductCard({ product }: Props) {
           />
         ) : (
           <div className="flex flex-col items-center justify-center text-center px-2">
-            <span className="text-[10px] font-semibold text-gray-700">
+            <span className="text-[10px] font-semibold text-gray-800">
               Producto incompleto
             </span>
             <span className="text-[9px] text-gray-400">
-              Sin imagen
+              Sin imagen válida
             </span>
           </div>
         )}
@@ -73,11 +99,10 @@ export function MarketplaceProductCard({ product }: Props) {
       </div>
 
       {/* Status */}
-      <span
-        className={`inline-flex items-center justify-center rounded-full px-3 py-[1px] text-[9px] font-medium ${statusStyle}`}
-      >
-        {product.status}
-      </span>
+      <div className="inline-flex items-center gap-1 text-[9px] font-medium">
+        <span className={`h-2 w-2 rounded-full ${statusDot}`} />
+        <span className={statusText}>{statusLabel}</span>
+      </div>
 
       {/* Link */}
       {product.publicationUrl && (

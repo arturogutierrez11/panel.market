@@ -4,7 +4,12 @@ import { MarketplaceProduct } from '@/src/core/entitis/marketplace/shared/produc
 import { PaginatedResult } from '@/src/core/entitis/marketplace/shared/products/get/pagination/PaginatedResult';
 
 type MegatoneProductsApiResponse = {
-  items: MarketplaceProduct[];
+  items: Array<
+    MarketplaceProduct & {
+      linkPublicacion?: string;
+      publication_url?: string;
+    }
+  >;
   total: number;
   limit: number;
   offset: number;
@@ -36,8 +41,40 @@ export class GetMegatoneProductsRepository
         `/megatone/products?offset=${offset}&limit=${limit}`
       );
 
+    /* =========================
+     * Normalización
+     * ========================= */
+   const normalizedItems: MarketplaceProduct[] =
+  response.items.map((item: any) => ({
+    ...item,
+
+    publicationUrl:
+      item.publicationUrl ??
+      item.linkPublicacion ??
+      item.LinkPublicacion ??
+      item.link_publicacion ??
+      item.publication_url ??
+      item.permalink ??
+      item.url ??
+      undefined,
+  }));
+    /* =========================
+     * Orden por estado
+     * ========================= */
+    const statusOrder: Record<string, number> = {
+      ACTIVE: 0,
+      PAUSED: 1,
+      DELETED: 2,
+    };
+
+    const sortedItems = normalizedItems.sort(
+      (a, b) =>
+        (statusOrder[a.status] ?? 99) -
+        (statusOrder[b.status] ?? 99)
+    );
+
     return {
-      items: response.items,
+      items: sortedItems,
       total: response.total,
       limit: response.limit,
       offset: response.offset,
