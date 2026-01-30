@@ -10,7 +10,7 @@ export const MARKETPLACES: Marketplace[] = [
     id: 'fravega',
     name: 'Frávega',
     description: 'Gestión de catálogo y precios',
-    logo: '/marketplace/Fravega.png',
+    logo: '/marketplace/fravega.png',
   },
   {
     id: 'oncity',
