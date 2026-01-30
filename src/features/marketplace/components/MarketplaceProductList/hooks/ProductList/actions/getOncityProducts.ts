@@ -1,14 +1,15 @@
+// actions/getOncityProducts.ts
 'use server';
 
-import { IGetOncityProductsRepository } from "@/src/core/adapters/repository/marketplace/oncity/products/get/IGetOncityProductRepository";
-import { GetOncityProductsRepository } from "@/src/core/driver/repository/marketplace/oncity/product/get/GetOncityProductRepository";
+import { IGetOncityProductsRepository } from '@/src/core/adapters/repository/marketplace/oncity/products/get/IGetOncityProductRepository';
+import { GetOncityProductsRepository } from '@/src/core/driver/repository/marketplace/oncity/product/get/GetOncityProductRepository';
 
 type Params = {
   offset: number;
   limit: number;
 };
 
-export async function getOncityProductsAction(params : Params) {
+export async function getOncityProductsAction(params: Params) {
   const repo: IGetOncityProductsRepository =
     new GetOncityProductsRepository();
 

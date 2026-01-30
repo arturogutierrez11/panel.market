@@ -1,14 +1,13 @@
+import { IGetOncityProductsRepository } from '@/src/core/adapters/repository/marketplace/oncity/products/get/IGetOncityProductRepository';
 import { MarketplaceProduct } from '@/src/core/entitis/marketplace/shared/products/get/MarketplaceProduct';
 import { PaginatedResult } from '@/src/core/entitis/marketplace/shared/products/get/pagination/PaginatedResult';
 import { HttpClient } from '../../../../http/httpClient';
-import { IGetOncityProductsRepository } from '@/src/core/adapters/repository/marketplace/oncity/products/get/IGetOncityProductRepository';
+import { mapRawPayloadToMarketplaceProduct } from '../../../mapper/mapRawPayloadToMarketplaceProduct';
 
-type OncityProductsApiResponse = {
-  items: Array<
-    MarketplaceProduct & {
-      linkPublicacion?: string;
-    }
-  >;
+type OncityApiResponse = {
+  items: Array<{
+    raw_payload: any;
+  }>;
   total: number;
   limit: number;
   offset: number;
@@ -25,61 +24,43 @@ export class GetOncityProductsRepository
     this.http =
       httpClient ??
       new HttpClient({
-        baseUrl: process.env.NEXT_PUBLIC_MARKETPLACE_API_URL!,
+        baseUrl: process.env.NEXT_PUBLIC_MADRE_API_URL!,
       });
   }
 
-  async execute(params: {
-    offset: number;
-    limit: number;
-  }): Promise<PaginatedResult<MarketplaceProduct>> {
-    const { offset, limit } = params;
+async execute(params: {
+  offset: number;
+  limit: number;
+}): Promise<PaginatedResult<MarketplaceProduct>> {
+  const { offset, limit } = params;
 
-    const response =
-      await this.http.get<OncityProductsApiResponse>(
-        `/oncity/products/all?offset=${offset}&limit=${limit}`
-      );
+  const response = await this.http.get<OncityApiResponse>(
+    `/api/internal/marketplace/products/items/all?marketplace=oncity&offset=${offset}&limit=${limit}`
+  );
 
-    /* =========================
-     * Normalización de items
-     * ========================= */
-    const normalizedItems: MarketplaceProduct[] =
-      response.items.map(item => ({
-        ...item,
+  const items = response.items
+    .map(item => mapRawPayloadToMarketplaceProduct(item.raw_payload))
+    .sort((a, b) => {
+      const order: Record<MarketplaceProduct['status'], number> = {
+        ACTIVE: 0,
+        PAUSED: 1,
+        DELETED: 2,
+      };
 
-        // 🔴 FIX CLAVE: el link ahora existe en el front
-        publicationUrl:
-          item.publicationUrl ??
-          item.linkPublicacion ??
-          undefined,
-      }));
+      return order[a.status] - order[b.status];
+    });
 
-    /* =========================
-     * Orden por estado
-     * ========================= */
-    const statusOrder: Record<string, number> = {
-      ACTIVE: 0,
-      PAUSED: 1,
-      DELETED: 2,
-    };
-
-    const sortedItems = normalizedItems.sort(
-      (a, b) =>
-        (statusOrder[a.status] ?? 99) -
-        (statusOrder[b.status] ?? 99)
-    );
-
-    return {
-      items: sortedItems,
-      total: response.total,
-      limit: response.limit,
-      offset: response.offset,
-      hasNext:
-        response.hasNext ??
-        response.offset + response.limit < response.total,
-      nextOffset:
-        response.nextOffset ??
-        response.offset + response.limit,
-    };
-  }
+  return {
+    items,
+    total: response.total,
+    limit: response.limit,
+    offset: response.offset,
+    hasNext:
+      response.hasNext ??
+      response.offset + response.limit < response.total,
+    nextOffset:
+      response.nextOffset ??
+      response.offset + response.limit,
+  };
+}
 }
