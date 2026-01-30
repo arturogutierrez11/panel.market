@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+  output: "standalone",
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "www.megatone.net" },
       { protocol: "https", hostname: "http2.mlstatic.com" },
