@@ -47,7 +47,7 @@ export class HttpClient {
     return this.request<T>('GET', path);
   }
 
-  post<T>(path: string, body: unknown) {
+  post<T>(path: string, body?: unknown) {
     return this.request<T>('POST', path, body);
   }
 

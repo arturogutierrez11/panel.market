@@ -4,68 +4,80 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-
 import { MARKETPLACES } from '@/src/features/marketplace/config/marketplaces';
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   const isMarketplaceRoute = pathname.startsWith('/admin/marketplace');
-  const [open, setOpen] = useState(isMarketplaceRoute);
+  const isAnalyticsRoot = pathname === '/admin/commerce/analytics';
 
+  const [collapsed, setCollapsed] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(isMarketplaceRoute);
+
+  /* 🔥 Colapsar automáticamente en analytics root */
+  useEffect(() => {
+    if (isAnalyticsRoot) {
+      setCollapsed(true);
+    }
+  }, [isAnalyticsRoot]);
+
+  /* Mantener dropdown marketplace abierto */
   useEffect(() => {
     if (isMarketplaceRoute) {
-      setOpen(true);
+      setOpenDropdown(true);
     }
   }, [isMarketplaceRoute]);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-black text-gray-100">
+    <aside
+      className={`
+        relative flex h-full flex-col bg-zinc-950 text-gray-200
+        border-r border-zinc-800
+        transition-all duration-300 ease-in-out
+        ${collapsed ? 'w-14' : 'w-64'}
+      `}
+    >
+      {/* Collapse Toggle */}
+      <button
+        onClick={() => setCollapsed(v => !v)}
+        className="absolute right-[-12px] top-1/2 -translate-y-1/2
+                   h-8 w-8 rounded-full bg-zinc-900
+                   border border-zinc-700
+                   flex items-center justify-center
+                   hover:bg-zinc-800 transition shadow-md"
+      >
+        <ChevronIcon collapsed={collapsed} />
+      </button>
+
       {/* Logo */}
-      <div className="flex justify-center border-b border-gray-800 py-8">
-        <div className="relative h-20 w-20">
-          <Image
-            src="/LQA-logo.png"
-            alt="Tienda Lo Quiero Acá"
-            fill
-            className="object-contain"
-            priority
-          />
+      {!collapsed && (
+        <div className="flex justify-center border-b border-zinc-800 py-6">
+          <div className="relative h-10 w-10">
+            <Image
+              src="/LQA-logo.png"
+              alt="Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-4 py-6 text-sm">
-        {/* ================= MARKETPLACE DROPDOWN ================= */}
-        <button
-          onClick={() => setOpen(v => !v)}
-          className={`
-            flex w-full items-center justify-between rounded-lg px-3 py-2 transition
-            ${
-              isMarketplaceRoute
-                ? 'bg-gray-800 text-white'
-                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-            }
-          `}
-        >
-          <span>Marketplace</span>
-          <span
-            className={`transition-transform ${
-              open ? 'rotate-90' : ''
-            }`}
-          >
-            →
-          </span>
-        </button>
+      <nav className="flex-1 space-y-1 px-2 py-4 text-sm">
 
-        {/* Dropdown */}
-        <div
-          className={`
-            overflow-hidden transition-all duration-300
-            ${open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
-          `}
-        >
-          <div className="mt-1 space-y-1 pl-2">
+        {/* Marketplace */}
+        <SidebarItem
+          label="Marketplace"
+          active={isMarketplaceRoute}
+          collapsed={collapsed}
+          onClick={() => setOpenDropdown(v => !v)}
+        />
+
+        {!collapsed && openDropdown && (
+          <div className="pl-4 space-y-1">
             {MARKETPLACES.map(market => {
               const active =
                 pathname === `/admin/marketplace/${market.id}`;
@@ -75,75 +87,119 @@ export default function Sidebar() {
                   key={market.id}
                   href={`/admin/marketplace/${market.id}`}
                   className={`
-                    flex items-center gap-3 rounded-lg px-3 py-2 transition
+                    block rounded-md px-3 py-2 text-xs transition
                     ${
                       active
-                        ? 'bg-gray-700 text-white'
-                        : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-zinc-800 text-white'
+                        : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
                     }
                   `}
                 >
-                  <div
-  className="
-    flex
-    h-8
-    w-10
-    shrink-0
-    items-center
-    justify-center
-    rounded-md
-    bg-white/90
-    p-1
-    shadow-sm
-  "
->
-  <Image
-    src={market.logo}
-    alt={market.name}
-    width={28}
-    height={28}
-    className="object-contain"
-  />
-</div>
-
-                  <div className="flex flex-col">
-                    <span className="leading-tight">
-                      {market.name}
-                    </span>
-                    <span className="text-[10px] text-gray-500">
-                      {market.description}
-                    </span>
-                  </div>
+                  {market.name}
                 </Link>
               );
             })}
           </div>
-        </div>
+        )}
 
-        {/* Other items */}
-        <Link
+        <SidebarLink
           href="/admin/products"
-          className={`
-            block rounded-lg px-3 py-2 transition
-            ${
-              pathname.startsWith('/admin/products')
-                ? 'bg-gray-800 text-white'
-                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-            }
-          `}
-        >
-          Productos
-        </Link>
+          label="Productos"
+          active={pathname.startsWith('/admin/products')}
+          collapsed={collapsed}
+        />
 
-        <div className="rounded-lg px-3 py-2 text-gray-500 cursor-not-allowed">
-          Configuración
-        </div>
+        <SidebarLink
+          href="/admin/commerce"
+          label="Commerce"
+          active={pathname.startsWith('/admin/commerce')}
+          collapsed={collapsed}
+        />
       </nav>
-
-      {/* Footer */}
-      <div className="border-t border-gray-800 px-6 py-4 text-xs text-gray-500">
-        Admin Panel
-      </div>
     </aside>
+  );
+}
+
+/* ================= LINK ================= */
+
+function SidebarLink({
+  href,
+  label,
+  active,
+  collapsed
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  collapsed: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`
+        flex items-center justify-center rounded-lg py-3 transition
+        ${
+          active
+            ? 'bg-zinc-800 text-white'
+            : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+        }
+      `}
+    >
+      {collapsed ? <DotIcon /> : label}
+    </Link>
+  );
+}
+
+/* ================= ITEM ================= */
+
+function SidebarItem({
+  label,
+  active,
+  collapsed,
+  onClick
+}: {
+  label: string;
+  active: boolean;
+  collapsed: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        w-full rounded-lg py-3 transition flex items-center justify-center
+        ${
+          active
+            ? 'bg-zinc-800 text-white'
+            : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+        }
+      `}
+    >
+      {collapsed ? <DotIcon /> : label}
+    </button>
+  );
+}
+
+function DotIcon() {
+  return (
+    <div className="h-2 w-2 rounded-full bg-current opacity-70" />
+  );
+}
+
+/* ================= CHEVRON ================= */
+
+function ChevronIcon({ collapsed }: { collapsed: boolean }) {
+  return (
+    <svg
+      className={`h-4 w-4 transition-transform duration-300 ${
+        collapsed ? 'rotate-180' : ''
+      }`}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path d="M15 6l-6 6 6 6" />
+    </svg>
   );
 }
