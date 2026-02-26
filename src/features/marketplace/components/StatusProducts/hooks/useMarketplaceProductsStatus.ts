@@ -35,7 +35,6 @@ export function useMarketplaceProductsStatus({
           }))
         );
       } catch (e) {
-        console.error('[useMarketplaceProductsStatus]', e);
       } finally {
         if (mounted) setLoading(false);
       }

@@ -1,0 +1,37 @@
+import { HttpClient } from '@/src/core/driver/repository/http/httpClient';
+import { IGetProductsOverviewRepository } from '@/src/core/adapters/repository/madre/analitics/products-analitycs/products/IGetProductsOverviewRepository';
+import { ProductsOverview } from '@/src/core/entitis/madre/analitics/products-analitycs/ProductsOverview';
+import { ProductsFilters } from '@/src/core/entitis/madre/analitics/products-analitycs/ProductsFilters';
+
+export class GetProductsOverviewRepository
+  implements IGetProductsOverviewRepository
+{
+  private readonly http: HttpClient;
+
+  constructor(httpClient?: HttpClient) {
+    this.http =
+      httpClient ??
+      new HttpClient({
+        baseUrl: process.env.NEXT_PUBLIC_MADRE_API_URL!,
+      });
+  }
+
+async execute(filters: ProductsFilters): Promise<ProductsOverview> {
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+
+    if (Array.isArray(value)) {
+      value.forEach(v => params.append(key, v));
+    } else {
+      params.append(key, String(value));
+    }
+  });
+
+  const queryString = params.toString();
+  const finalUrl = `/api/analytics/products/overview?${queryString}`;
+
+  return this.http.get<ProductsOverview>(finalUrl);
+}
+}

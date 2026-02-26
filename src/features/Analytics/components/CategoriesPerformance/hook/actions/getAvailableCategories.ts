@@ -1,6 +1,6 @@
 'use server';
 
-import { IGetAvailableCategoriesRepository } from "@/src/core/adapters/repository/madre/analitics/IGetAvailableCategoriesRepository";
+import { IGetAvailableCategoriesRepository } from "@/src/core/adapters/repository/madre/analitics/categories-analitycs/IGetAvailableCategoriesRepository";
 import { GetAvailableCategoriesRepository } from "@/src/core/driver/repository/madre/analitics/GetAvailableCategoriesRepository";
 import { AvailableCategory } from "@/src/core/entitis/madre/analitics/AvailableCategory";
 

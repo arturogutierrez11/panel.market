@@ -10,7 +10,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const isMarketplaceRoute = pathname.startsWith('/admin/marketplace');
-  const isAnalyticsRoot = pathname === '/admin/commerce/analytics';
+  const isAnalyticsRoot = pathname === '/admin/commerce/analytics' || '/admin/commerce/favorites';
 
   const [collapsed, setCollapsed] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(isMarketplaceRoute);

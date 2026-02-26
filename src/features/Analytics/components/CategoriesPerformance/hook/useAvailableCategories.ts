@@ -15,7 +15,6 @@ export function useAvailableCategories() {
         const data = await getAvailableCategoriesAction();
         setCategories(data);
       } catch (err) {
-        console.error(err);
       } finally {
         setLoading(false);
       }

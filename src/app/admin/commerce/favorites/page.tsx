@@ -1,16 +1,16 @@
 'use client';
 
-import FavoritesDashboard from '@/src/features/Analytics/components/favorites/components/FavoritesDashboard';
+import FavoritesDashboard from '@/src/features/Analytics/components/favorites/dashboard/FavoritesDashboard';
 import { useRouter } from 'next/navigation';
 
 export default function StrategiesPage() {
   const router = useRouter();
 
   return (
-    <div className="h-full w-full bg-zinc-950 text-white flex flex-col">
+    <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
 
-      {/* ===== HEADER CON BACK ===== */}
-      <div className="flex items-center gap-4 px-8 pt-8 pb-4 border-b border-zinc-800">
+      {/* ===== HEADER ===== */}
+      <div className="flex items-center gap-4 px-8 pt-8 pb-6 border-b border-zinc-800">
 
         <button
           onClick={() => router.push('/admin/commerce')}
@@ -20,16 +20,16 @@ export default function StrategiesPage() {
           <span className="text-sm">Volver</span>
         </button>
 
-        <div className="text-sm text-zinc-600">/</div>
+        <span className="text-zinc-700">/</span>
 
-        <h1 className="text-lg font-medium">
+        <h1 className="text-lg font-medium tracking-wide">
           Strategic Products
         </h1>
 
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-y-auto p-8">
         <FavoritesDashboard />
       </div>
 

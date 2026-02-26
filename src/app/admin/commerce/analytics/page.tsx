@@ -1,7 +1,7 @@
 'use client';
 
+import ParentCategoriesDashboard from '@/src/features/Analytics/components/CategoriesPerformance/level-1/components/ParentCategoriesDashboard';
 import { useRouter, usePathname } from 'next/navigation';
-import ParentCategoriesDashboard from '@/src/features/Analytics/components/CategoriesPerformance/ParentCategoriesDashboard';
 
 export default function AnalyticsPage() {
   const router = useRouter();

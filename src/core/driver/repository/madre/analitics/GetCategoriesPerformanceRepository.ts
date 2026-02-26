@@ -1,4 +1,4 @@
-import { IGetCategoriesPerformanceRepository } from "@/src/core/adapters/repository/madre/analitics/IGetCategoriesPerformanceRepository";
+import { IGetCategoriesPerformanceRepository } from "@/src/core/adapters/repository/madre/analitics/categories-analitycs/IGetCategoriesPerformanceRepository";
 import { HttpClient } from "../../http/httpClient";
 import { CategoryPerformance } from "@/src/core/entitis/madre/analitics/CategoryPerformance";
 

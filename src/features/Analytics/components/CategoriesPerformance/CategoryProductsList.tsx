@@ -1,15 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCategoryProducts } from './hook/useCategoryProducts';
-import { useMarketplaceFavoriteActions } from '../favorites/hooks/useMarketplaceFavoriteActions';
-import { FiltersModal } from './filters/FiltersModal';
 
 import {
   CategoryProduct,
   CategoryProductsFilters
-} from '@/src/core/driver/repository/madre/analitics/categoriesProducts/GetCategoryProductsRepository';
+} from '@/src/core/driver/repository/madre/analitics/categories-analitycs/categoriesProducts/GetCategoryProductsRepository';
+
 import { CategoryFiltersModal } from './filters/CategoryFiltersModal';
+import { useMarketplaceFavoriteActions } from '../favorites/items/hooks/useMarketplaceFavoriteActions';
+
+import { GetFoldersRepository } from '@/src/core/driver/repository/madre/analitics/favorites/folders/get/GetFoldersRepository';
+import { CreateMarketplaceRepository } from '@/src/core/driver/repository/madre/analitics/favorites/folders/create/CreateMarketplaceRepository';
+
+import { useFolders } from '../products-analitycs/hooks/useFolders';
+import { useCreateFolder } from '../products-analitycs/actions/useCreateFolder';
+import { useMarketplaceBulkAdd } from './hook/useMarketplaceBulkAdd';
 
 type Props = {
   categoryId: string;
@@ -32,12 +39,10 @@ export default function CategoryProductsList({ categoryId }: Props) {
   /* ================= STATES ================= */
 
   const [page, setPage] = useState(1);
-
   const [filters, setFilters] =
     useState<CategoryProductsFilters>(defaultFilters);
 
   const [showFilters, setShowFilters] = useState(false);
-
   const [selected, setSelected] =
     useState<Set<string>>(new Set());
 
@@ -53,9 +58,31 @@ export default function CategoryProductsList({ categoryId }: Props) {
   const [localItems, setLocalItems] =
     useState<CategoryProduct[]>([]);
 
-  /* ================= HOOK ================= */
+  /* ================= FAVORITES ================= */
 
-  const { bulkAdd } = useMarketplaceFavoriteActions();
+const { bulkAdd, loading: addingToFavorites } =
+  useMarketplaceBulkAdd();
+  /* ================= FOLDERS ================= */
+
+  const foldersRepo = useMemo(
+    () => new GetFoldersRepository(),
+    []
+  );
+
+  const createFolderRepo = useMemo(
+    () => new CreateMarketplaceRepository(),
+    []
+  );
+
+  const { folders, loading: foldersLoading, reload } =
+    useFolders(foldersRepo);
+
+  const {
+    execute: createFolder,
+    loading: creatingFolder
+  } = useCreateFolder(createFolderRepo);
+
+  /* ================= PRODUCTS ================= */
 
   const {
     items,
@@ -76,7 +103,7 @@ export default function CategoryProductsList({ categoryId }: Props) {
     setPage(1);
   }, [filters, categoryId]);
 
-  /* ================= FAVORITES ================= */
+  /* ================= HANDLERS ================= */
 
   const handleConfirmFavorites = async () => {
     if (selectedMarketplaces.length === 0) return;
@@ -106,8 +133,6 @@ export default function CategoryProductsList({ categoryId }: Props) {
 
     await refetch();
   };
-
-  /* ================= SELECTION ================= */
 
   const toggleSelect = (id: string) => {
     setSelected(prev => {
@@ -198,7 +223,6 @@ export default function CategoryProductsList({ categoryId }: Props) {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-
                   <thead className="bg-zinc-900 text-zinc-400 uppercase text-xs tracking-wide">
                     <tr>
                       <th className="px-4 py-3 text-center">
@@ -228,7 +252,6 @@ export default function CategoryProductsList({ categoryId }: Props) {
                         key={product.id}
                         className="border-t border-zinc-800 hover:bg-zinc-900/40 transition"
                       >
-                        {/* SELECT */}
                         <td className="px-4 py-4 text-center">
                           <input
                             type="checkbox"
@@ -238,7 +261,6 @@ export default function CategoryProductsList({ categoryId }: Props) {
                           />
                         </td>
 
-                        {/* PRODUCT */}
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-4">
                             <img
@@ -259,7 +281,6 @@ export default function CategoryProductsList({ categoryId }: Props) {
                           </div>
                         </td>
 
-                        {/* METRICS */}
                         <td className="px-4 py-4 text-center text-xs space-y-1">
                           <div className="text-white">
                             ${product.price.toLocaleString()}
@@ -275,56 +296,27 @@ export default function CategoryProductsList({ categoryId }: Props) {
                           </div>
                         </td>
 
-                        {/* PUBLICATIONS */}
                         <td className="px-4 py-4 text-center">
-                          {product.publishedMarketplaces.length > 0 ? (
-                            <div className="flex flex-wrap gap-2 justify-center">
-                              {product.publishedMarketplaces.map((m, idx) => (
-                                <div key={idx} className="relative group">
-                                  <span className="px-2 py-1 text-xs bg-blue-600 rounded-full text-white cursor-pointer">
-                                    {m.marketplace}
-                                  </span>
-
-                                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-56 bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-xs text-zinc-300 opacity-0 group-hover:opacity-100 transition pointer-events-none z-20">
-                                    <div className="flex justify-between">
-                                      <span>Precio:</span>
-                                      <span>${Number(m.price).toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span>Stock:</span>
-                                      <span>{m.stock}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span>Status:</span>
-                                      <span className={
-                                        m.status === 'ACTIVE'
-                                          ? 'text-green-400'
-                                          : 'text-yellow-400'
-                                      }>
-                                        {m.status}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-zinc-500 text-xs">
-                              No publicado
-                            </span>
-                          )}
+                          {product.publishedMarketplaces.length > 0
+                            ? product.publishedMarketplaces.map((m, i) => (
+                                <span
+                                  key={i}
+                                  className="px-2 py-1 text-xs bg-blue-600 rounded-full text-white mr-1"
+                                >
+                                  {m.marketplace}
+                                </span>
+                              ))
+                            : <span className="text-zinc-500 text-xs">
+                                No publicado
+                              </span>}
                         </td>
 
-                        {/* FAVORITE */}
                         <td className="px-4 py-4 text-center">
-                          {product.isFavorite ? (
-                            <span className="text-green-500 text-lg">✔</span>
-                          ) : (
-                            <span className="text-zinc-600">—</span>
-                          )}
+                          {product.isFavorite
+                            ? <span className="text-green-500 text-lg">✔</span>
+                            : <span className="text-zinc-600">—</span>}
                         </td>
 
-                        {/* ADD */}
                         <td className="px-4 py-4 text-center">
                           <button
                             onClick={() => {
@@ -336,83 +328,132 @@ export default function CategoryProductsList({ categoryId }: Props) {
                             ＋
                           </button>
                         </td>
-
                       </tr>
                     ))}
                   </tbody>
-
                 </table>
               </div>
-
-              {/* PAGINATION */}
-              {meta && meta.totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4 mt-6 pb-6">
-                  <button
-                    disabled={!meta.hasPrev}
-                    onClick={() => {
-                      setPage(prev => prev - 1);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className={`px-4 py-2 text-sm rounded-lg ${
-                      meta.hasPrev
-                        ? 'bg-zinc-800 hover:bg-zinc-700 text-white'
-                        : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
-                    }`}
-                  >
-                    Anterior
-                  </button>
-
-                  <div className="text-sm text-zinc-400">
-                    Página <span className="text-white font-semibold">
-                      {meta.page}
-                    </span> de {meta.totalPages}
-                  </div>
-
-                  <button
-                    disabled={!meta.hasNext}
-                    onClick={() => {
-                      setPage(prev => prev + 1);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className={`px-4 py-2 text-sm rounded-lg ${
-                      meta.hasNext
-                        ? 'bg-zinc-800 hover:bg-zinc-700 text-white'
-                        : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
-                    }`}
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              )}
-
             </>
           )}
         </div>
       </div>
 
       {showFilters && (
-  <CategoryFiltersModal
-    currentFilters={filters}
-    onApply={(newFilters) => {
-      setFilters(newFilters);
-      setShowFilters(false);
-    }}
-    onClose={() => setShowFilters(false)}
-  />
-)}
+        <CategoryFiltersModal
+          currentFilters={filters}
+          onApply={(newFilters) => {
+            setFilters(newFilters);
+            setShowFilters(false);
+          }}
+          onClose={() => setShowFilters(false)}
+        />
+      )}
+
       {/* MARKETPLACE MODAL */}
       {showMarketplaceModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 w-96 space-y-4">
-            <h3 className="text-white font-semibold">
-              Seleccionar Marketplaces
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 w-[420px] space-y-6">
+
+            <h3 className="text-white font-semibold text-lg">
+              Seleccionar carpeta
             </h3>
 
-            {/* Acá podés poner los marketplaces reales */}
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {foldersLoading
+                ? <div className="text-zinc-400 text-sm">
+                    Cargando carpetas...
+                  </div>
+                : folders.map(folder => (
+                    <button
+                      key={folder.id}
+                      onClick={() => toggleMarketplace(folder.id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition ${
+                        selectedMarketplaces.includes(folder.id)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                      }`}
+                    >
+                      {folder.name}
+                    </button>
+                  ))}
+            </div>
+
+            <CreateFolderInline
+              onCreate={async (name) => {
+                await createFolder(name);
+                await reload();
+              }}
+              loading={creatingFolder}
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowMarketplaceModal(false)}
+                className="px-4 py-2 text-sm bg-zinc-800 rounded-lg text-zinc-300"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={handleConfirmFavorites}
+                disabled={selectedMarketplaces.length === 0}
+                className={`px-4 py-2 text-sm rounded-lg ${
+                  selectedMarketplaces.length > 0
+                    ? 'bg-yellow-500 hover:bg-yellow-600 text-black'
+                    : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+                }`}
+              >
+                Confirmar
+              </button>
+            </div>
+
           </div>
         </div>
       )}
-
     </>
+  );
+}
+
+/* ================= INLINE CREATE ================= */
+
+function CreateFolderInline({
+  onCreate,
+  loading,
+}: {
+  onCreate: (name: string) => Promise<void>;
+  loading: boolean;
+}) {
+  const [name, setName] = useState('');
+
+  return (
+    <div className="border-t border-zinc-800 pt-4 space-y-2">
+      <div className="text-xs text-zinc-400">
+        Crear nueva carpeta
+      </div>
+
+      <div className="flex gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nombre de carpeta"
+          className="flex-1 px-3 py-2 text-sm bg-zinc-800 rounded-lg border border-zinc-700 focus:outline-none"
+        />
+
+        <button
+          disabled={!name.trim() || loading}
+          onClick={async () => {
+            await onCreate(name);
+            setName('');
+          }}
+          className={`px-3 py-2 text-sm rounded-lg ${
+            name.trim()
+              ? 'bg-blue-600 hover:bg-blue-500 text-white'
+              : 'bg-zinc-800 text-zinc-600'
+          }`}
+        >
+          +
+        </button>
+      </div>
+    </div>
   );
 }

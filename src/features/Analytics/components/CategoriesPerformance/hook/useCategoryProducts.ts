@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { GetCategoryProducts } from './actions/GetCategoryProducts';
-import { CategoryProduct, CategoryProductsFilters, CategoryProductsMeta, GetCategoryProductsRepository } from '@/src/core/driver/repository/madre/analitics/categoriesProducts/GetCategoryProductsRepository';
+import { CategoryProduct, CategoryProductsFilters, CategoryProductsMeta, GetCategoryProductsRepository } from '@/src/core/driver/repository/madre/analitics/categories-analitycs/categoriesProducts/GetCategoryProductsRepository';
 
 
 export function useCategoryProducts(
@@ -37,7 +37,6 @@ export function useCategoryProducts(
       setMeta(result.meta ?? null);
 
     } catch (err) {
-      console.error(err);
       setError('No se pudieron cargar los productos.');
     } finally {
       setLoading(false);

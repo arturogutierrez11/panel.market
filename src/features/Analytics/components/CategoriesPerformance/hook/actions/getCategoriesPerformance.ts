@@ -1,6 +1,6 @@
 'use server';
 
-import { IGetCategoriesPerformanceRepository } from "@/src/core/adapters/repository/madre/analitics/IGetCategoriesPerformanceRepository";
+import { IGetCategoriesPerformanceRepository } from "@/src/core/adapters/repository/madre/analitics/categories-analitycs/IGetCategoriesPerformanceRepository";
 import { GetCategoriesPerformanceRepository } from "@/src/core/driver/repository/madre/analitics/GetCategoriesPerformanceRepository";
 import { CategoryPerformance } from "@/src/core/entitis/madre/analitics/CategoryPerformance";
 

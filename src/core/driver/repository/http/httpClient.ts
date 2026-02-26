@@ -1,7 +1,7 @@
 import { HttpError } from "./error/errors";
 
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 type HttpClientConfig = {
   baseUrl: string;
@@ -55,7 +55,11 @@ export class HttpClient {
     return this.request<T>('PUT', path, body);
   }
 
-  delete<T>(path: string) {
-    return this.request<T>('DELETE', path);
-  }
+ delete<T>(path: string, body?: unknown) {
+  return this.request<T>('DELETE', path, body);
+}
+
+ patch<T>(path: string, body?: unknown) {
+  return this.request<T>('PATCH', path, body);
+}
 }

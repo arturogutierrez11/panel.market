@@ -25,7 +25,6 @@ export function useCategoriesPerformance(params: Params) {
           setData(response);
         }
       } catch (error) {
-        console.error('[useCategoriesPerformance]', error);
       } finally {
         if (mounted) setLoading(false);
       }

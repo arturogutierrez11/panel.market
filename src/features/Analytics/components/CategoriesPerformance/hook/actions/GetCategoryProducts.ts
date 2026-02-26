@@ -1,5 +1,5 @@
-import { IGetCategoryProductsRepository } from "@/src/core/adapters/repository/madre/analitics/IGetCategoryProductsRepository";
-import { CategoryProductsFilters, CategoryProductsResponse } from "@/src/core/driver/repository/madre/analitics/categoriesProducts/GetCategoryProductsRepository";
+import { IGetCategoryProductsRepository } from "@/src/core/adapters/repository/madre/analitics/categories-analitycs/IGetCategoryProductsRepository";
+import { CategoryProductsFilters, CategoryProductsResponse } from "@/src/core/driver/repository/madre/analitics/categories-analitycs/categoriesProducts/GetCategoryProductsRepository";
 
 
 export class GetCategoryProducts {

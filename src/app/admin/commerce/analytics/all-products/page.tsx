@@ -1,7 +1,7 @@
 'use client';
 
+import ProductsAnalyticsPanel from '@/src/features/Analytics/components/products-analitycs/ProductsAnalyticsPanel';
 import { useRouter } from 'next/navigation';
-import ProductsDashboard from '@/src/features/Analytics/components/CategoriesPerformance/products/ProductsDashboard';
 
 export default function AllProductsPage() {
   const router = useRouter();
@@ -59,7 +59,7 @@ export default function AllProductsPage() {
 
         {/* ===== MAIN CONTENT ===== */}
         <main className="flex-1 overflow-auto p-10">
-          <ProductsDashboard />
+          <ProductsAnalyticsPanel />
         </main>
 
       </div>

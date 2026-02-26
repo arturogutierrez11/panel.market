@@ -1,6 +1,6 @@
 import { AvailableCategory } from "@/src/core/entitis/madre/analitics/AvailableCategory";
 import { HttpClient } from "../../http/httpClient";
-import { IGetAvailableCategoriesRepository } from "@/src/core/adapters/repository/madre/analitics/IGetAvailableCategoriesRepository";
+import { IGetAvailableCategoriesRepository } from "@/src/core/adapters/repository/madre/analitics/categories-analitycs/IGetAvailableCategoriesRepository";
 
 export class GetAvailableCategoriesRepository
   implements IGetAvailableCategoriesRepository

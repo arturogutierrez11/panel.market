@@ -1,6 +1,6 @@
 'use client';
 
-import { CategoryProductsFilters } from '@/src/core/driver/repository/madre/analitics/categoriesProducts/GetCategoryProductsRepository';
+import { CategoryProductsFilters } from '@/src/core/driver/repository/madre/analitics/categories-analitycs/categoriesProducts/GetCategoryProductsRepository';
 import { useEffect, useState } from 'react';
 
 type Props = {

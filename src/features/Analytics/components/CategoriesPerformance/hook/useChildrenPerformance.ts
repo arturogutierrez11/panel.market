@@ -17,7 +17,6 @@ export function useChildrenPerformance(parentId?: string | null) {
         const response = await repo.execute(parentId);
         setData(response);
       } catch (err) {
-        console.error('[useChildrenPerformance]', err);
       } finally {
         setLoading(false);
       }

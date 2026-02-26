@@ -61,7 +61,6 @@ export function useMarketplaceProducts({ marketplaceId }: Params) {
         setTotal(response.total);
         setPage(nextPage);
       } catch (error) {
-        console.error('[useMarketplaceProducts] error', error);
       } finally {
         setLoading(false);
         setPaging(false);
