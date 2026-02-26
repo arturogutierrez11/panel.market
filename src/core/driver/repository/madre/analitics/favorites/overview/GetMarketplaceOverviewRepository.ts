@@ -1,6 +1,7 @@
-import { IGetMarketplaceOverviewRepository } from '@/src/core/adapters/repository/madre/analitics/favorites/folders/overview/IGetMarketplaceOverviewRepository';
 import { HttpClient } from '@/src/core/driver/repository/http/httpClient';
 import { MarketplaceOverview } from '@/src/core/entitis/madre/analitics/favorites/MarketplaceOverview.entity';
+import { IGetMarketplaceOverviewRepository } from 
+'@/src/core/adapters/repository/madre/analitics/favorites/items/overview/IGetMarketplaceOverviewRepository';
 
 export class GetMarketplaceOverviewRepository
   implements IGetMarketplaceOverviewRepository

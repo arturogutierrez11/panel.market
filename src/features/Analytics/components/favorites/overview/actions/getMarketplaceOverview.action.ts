@@ -1,4 +1,5 @@
-import { IGetMarketplaceOverviewRepository } from "@/src/core/adapters/repository/madre/analitics/favorites/folders/overview/IGetMarketplaceOverviewRepository";
+import { IGetMarketplaceOverviewRepository } from 
+'@/src/core/adapters/repository/madre/analitics/favorites/items/overview/IGetMarketplaceOverviewRepository';
 import { GetMarketplaceOverviewRepository } from "@/src/core/driver/repository/madre/analitics/favorites/overview/GetMarketplaceOverviewRepository";
 
 export async function getMarketplaceOverviewAction(
