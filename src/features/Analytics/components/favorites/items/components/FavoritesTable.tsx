@@ -8,6 +8,7 @@ type Props = {
   onToggleSelect: (id: string) => void;
   onToggleSelectAll: () => void;
   onRemove: (productId: string) => void;
+  isClosed: boolean; 
 };
 
 export function FavoritesTable({
@@ -15,7 +16,8 @@ export function FavoritesTable({
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
-  onRemove
+  onRemove,
+   isClosed  
 }: Props) {
 
   const allSelected = data.length > 0 && selectedIds.length === data.length;
@@ -91,12 +93,17 @@ export function FavoritesTable({
               </td>
 
               <td className="p-4 text-right">
-                <button
-                  onClick={() => onRemove(item.id)}
-                  className="text-red-400 text-sm"
-                >
-                  Eliminar
-                </button>
+               <button
+  disabled={isClosed}
+  onClick={() => onRemove(item.id)}
+  className={`text-sm ${
+    isClosed
+      ? "text-zinc-600 cursor-not-allowed"
+      : "text-red-400"
+  }`}
+>
+  Eliminar
+</button>
               </td>
             </tr>
           ))}

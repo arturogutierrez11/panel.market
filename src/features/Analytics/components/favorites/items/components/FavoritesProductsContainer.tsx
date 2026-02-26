@@ -6,6 +6,9 @@ import { FavoritesTable } from "./FavoritesTable";
 import { Pagination } from "./Pagination";
 import { FiltersBar } from "./FiltersBar";
 import { FavoritesFilters } from "@/src/core/driver/repository/madre/analitics/favorites/items/GetMarketplaceFavoritesRepository";
+import { useMemo } from "react";
+import { GetFoldersRepository } from "@/src/core/driver/repository/madre/analitics/favorites/folders/get/GetFoldersRepository";
+import { useFolders } from "@/src/features/Analytics/components/products-analitycs/hooks/useFolders";
 
 export function FavoritesProductsContainer({
   marketplaceId
@@ -23,8 +26,12 @@ export function FavoritesProductsContainer({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeFilters, setActiveFilters] = useState<FavoritesFilters>({});
 
-  const currentFolder = folders.find(f => f.id === marketplaceId);
-const isClosed = currentFolder?.status === 'closed';
+  const foldersRepo = useMemo(
+  () => new GetFoldersRepository(),
+  []
+);
+
+const { folders } = useFolders(foldersRepo);
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev =>
