@@ -1,16 +1,24 @@
-import Sidebar from "@/src/components/layout/Sidebar";
+'use client';
+
+import Sidebar from '@/src/components/layout/Sidebar';
+import { usePathname } from 'next/navigation';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const pathname = usePathname();
+
+  const hideSidebar = pathname.startsWith('/admin/commerce');
+
   return (
-    <div className="h-screen w-full flex bg-zinc-950 overflow-hidden">
+    <div className="flex h-screen">
 
-      <Sidebar />
+      {!hideSidebar && <Sidebar />}
 
-      <main className="flex-1 h-full overflow-auto">
+      <main className="flex-1">
         {children}
       </main>
 

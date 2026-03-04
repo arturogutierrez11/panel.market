@@ -15,35 +15,33 @@ export function MarketplaceProductCard({ product }: Props) {
       ? product.images[0]
       : null;
 
-  /* =========================
-   * Status normalization
-   * ========================= */
   const normalizedStatus = product.status
     ?.toString()
     .toUpperCase()
     .trim();
 
-  let statusDot = 'bg-gray-400';
-  let statusText = 'text-gray-700';
+  let statusBadge =
+    'bg-gray-100 text-gray-600';
+
   let statusLabel = normalizedStatus ?? 'Desconocido';
 
   switch (normalizedStatus) {
     case 'ACTIVE':
     case 'ACTIVO':
-      statusDot = 'bg-green-500';
+      statusBadge = 'bg-green-100 text-green-700';
       statusLabel = 'Activo';
       break;
 
     case 'PAUSED':
     case 'PAUSADO':
     case 'INACTIVE':
-      statusDot = 'bg-red-400';
-      statusLabel = 'Inactivo';
+      statusBadge = 'bg-yellow-100 text-yellow-700';
+      statusLabel = 'Pausado';
       break;
 
     case 'DELETED':
     case 'ELIMINADO':
-      statusDot = 'bg-red-500';
+      statusBadge = 'bg-red-100 text-red-700';
       statusLabel = 'Eliminado';
       break;
   }
@@ -51,83 +49,105 @@ export function MarketplaceProductCard({ product }: Props) {
   return (
     <div
       className="
-        rounded-lg border border-gray-200 bg-white p-2 space-y-1
-        transition-all duration-200 ease-out
-        hover:scale-[1.03] hover:shadow-lg
+      group
+      rounded-xl
+      border border-gray-200
+      bg-white
+      p-3
+      transition-all
+      hover:shadow-md
       "
     >
-      {/* Imagen / Placeholder */}
-      <div className="relative h-20 w-full rounded-md bg-gray-50 overflow-hidden flex items-center justify-center">
+      {/* IMAGE */}
+      <div className="relative h-24 w-full rounded-lg bg-gray-50 overflow-hidden flex items-center justify-center">
+
         {image ? (
           <Image
             src={image}
             alt={product.title}
             fill
             sizes="(max-width: 1280px) 14vw"
-            className="object-contain p-1"
+            className="object-contain p-2 transition-transform group-hover:scale-105"
           />
         ) : (
-          <div className="flex flex-col items-center justify-center text-center px-2">
-            <span className="text-[10px] font-semibold text-gray-800">
+          <div className="text-center px-2">
+            <div className="text-xs font-semibold text-gray-700">
+              Sin imagen
+            </div>
+            <div className="text-[10px] text-gray-400">
               Producto incompleto
-            </span>
-            <span className="text-[9px] text-gray-400">
-              Sin imagen válida
-            </span>
+            </div>
           </div>
         )}
+
       </div>
 
-      {/* SKU */}
-      <div className="text-[9px] text-gray-500 truncate">
-        {product.sellerSku} · {product.publicationId}
+      {/* META */}
+      <div className="mt-2 space-y-1">
+
+        <div className="text-[10px] text-gray-400 truncate">
+          {product.sellerSku} · {product.publicationId}
+        </div>
+
+        {/* TITLE */}
+        <div className="text-xs font-semibold text-gray-900 line-clamp-2 leading-tight">
+          {product.title}
+        </div>
+
       </div>
 
-      {/* Título */}
-      <div className="text-[11px] font-semibold text-gray-900 line-clamp-2 leading-tight">
-        {product.title}
-      </div>
+      {/* PRICE / STOCK */}
+      <div className="mt-2 flex items-center justify-between">
 
-      {/* Precio / Stock */}
-      <div className="flex justify-between items-center text-[11px]">
-        <span className="font-semibold text-gray-900">
+        <span className="text-sm font-semibold text-gray-900">
           ${product.price.toLocaleString()}
         </span>
-        <span className="text-gray-700">
-          Stock: {product.stock}
+
+        <span className="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
+          Stock {product.stock}
         </span>
+
       </div>
 
-      {/* Status */}
-      <div className="inline-flex items-center gap-1 text-[9px] font-medium">
-        <span className={`h-2 w-2 rounded-full ${statusDot}`} />
-        <span className={statusText}>{statusLabel}</span>
+      {/* STATUS */}
+      <div className="mt-2 flex items-center justify-between">
+
+        <span
+          className={`text-[10px] font-medium px-2 py-0.5 rounded-md ${statusBadge}`}
+        >
+          {statusLabel}
+        </span>
+
       </div>
 
-      {/* Link */}
+      {/* ACTION */}
       {product.publicationUrl && (
         <a
           href={product.publicationUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="
-            mt-1
-            inline-flex
-            w-full
-            justify-center
-            rounded-md
-            border border-gray-300
-            px-3 py-0.5
-            text-[9px]
-            font-medium
-            text-gray-900
-            hover:bg-gray-100
-            transition
+          mt-3
+          flex
+          w-full
+          items-center
+          justify-center
+          rounded-md
+          border
+          border-gray-200
+          bg-white
+          py-1
+          text-[11px]
+          font-medium
+          text-gray-800
+          transition
+          hover:bg-gray-50
           "
         >
           Ver producto
         </a>
       )}
+
     </div>
   );
 }

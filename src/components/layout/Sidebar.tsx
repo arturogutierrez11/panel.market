@@ -4,30 +4,26 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { MARKETPLACES } from '@/src/features/marketplace/config/marketplaces';
 
 export default function Sidebar() {
-  const pathname = usePathname();
 
-  const isMarketplaceRoute = pathname.startsWith('/admin/marketplace');
-  const isAnalyticsRoot = pathname === '/admin/commerce/analytics' || '/admin/commerce/favorites';
+  const rawPathname = usePathname();
+  const pathname = rawPathname?.replace(/\/$/, '') || '';
+
+  const hideSidebar = pathname.startsWith('/admin/commerce');
+  if (hideSidebar) return null;
+
+  const isAnalyticsRoot =
+    pathname === '/admin/commerce/analytics' ||
+    pathname === '/admin/commerce/favorites';
 
   const [collapsed, setCollapsed] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(isMarketplaceRoute);
 
-  /* 🔥 Colapsar automáticamente en analytics root */
   useEffect(() => {
     if (isAnalyticsRoot) {
       setCollapsed(true);
     }
   }, [isAnalyticsRoot]);
-
-  /* Mantener dropdown marketplace abierto */
-  useEffect(() => {
-    if (isMarketplaceRoute) {
-      setOpenDropdown(true);
-    }
-  }, [isMarketplaceRoute]);
 
   return (
     <aside
@@ -38,7 +34,8 @@ export default function Sidebar() {
         ${collapsed ? 'w-14' : 'w-64'}
       `}
     >
-      {/* Collapse Toggle */}
+
+      {/* Toggle */}
       <button
         onClick={() => setCollapsed(v => !v)}
         className="absolute right-[-12px] top-1/2 -translate-y-1/2
@@ -56,7 +53,7 @@ export default function Sidebar() {
           <div className="relative h-10 w-10">
             <Image
               src="/LQA-logo.png"
-              alt="Logo"
+              alt="LQA Logo"
               fill
               className="object-contain"
               priority
@@ -65,60 +62,38 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Navigation */}
       <nav className="flex-1 space-y-1 px-2 py-4 text-sm">
 
         {/* Marketplace */}
-        <SidebarItem
+        <SidebarLink
+          href="/admin/marketplace"
           label="Marketplace"
-          active={isMarketplaceRoute}
+          active={pathname.startsWith('/admin/marketplace')}
           collapsed={collapsed}
-          onClick={() => setOpenDropdown(v => !v)}
         />
 
-        {!collapsed && openDropdown && (
-          <div className="pl-4 space-y-1">
-            {MARKETPLACES.map(market => {
-              const active =
-                pathname === `/admin/marketplace/${market.id}`;
-
-              return (
-                <Link
-                  key={market.id}
-                  href={`/admin/marketplace/${market.id}`}
-                  className={`
-                    block rounded-md px-3 py-2 text-xs transition
-                    ${
-                      active
-                        ? 'bg-zinc-800 text-white'
-                        : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
-                    }
-                  `}
-                >
-                  {market.name}
-                </Link>
-              );
-            })}
-          </div>
-        )}
-
+        {/* Productos */}
         <SidebarLink
           href="/admin/products"
-          label="Productos"
+          label="Products"
           active={pathname.startsWith('/admin/products')}
           collapsed={collapsed}
         />
 
+        {/* Commerce */}
         <SidebarLink
           href="/admin/commerce"
           label="Commerce"
           active={pathname.startsWith('/admin/commerce')}
           collapsed={collapsed}
+          newTab
         />
+
       </nav>
     </aside>
   );
 }
+
 
 /* ================= LINK ================= */
 
@@ -126,16 +101,21 @@ function SidebarLink({
   href,
   label,
   active,
-  collapsed
+  collapsed,
+  newTab = false
 }: {
   href: string;
   label: string;
   active: boolean;
   collapsed: boolean;
+  newTab?: boolean;
 }) {
+
   return (
     <Link
       href={href}
+      target={newTab ? '_blank' : undefined}
+      rel={newTab ? 'noopener noreferrer' : undefined}
       className={`
         flex items-center justify-center rounded-lg py-3 transition
         ${
@@ -150,41 +130,15 @@ function SidebarLink({
   );
 }
 
-/* ================= ITEM ================= */
 
-function SidebarItem({
-  label,
-  active,
-  collapsed,
-  onClick
-}: {
-  label: string;
-  active: boolean;
-  collapsed: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`
-        w-full rounded-lg py-3 transition flex items-center justify-center
-        ${
-          active
-            ? 'bg-zinc-800 text-white'
-            : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
-        }
-      `}
-    >
-      {collapsed ? <DotIcon /> : label}
-    </button>
-  );
-}
+/* ================= DOT ================= */
 
 function DotIcon() {
   return (
     <div className="h-2 w-2 rounded-full bg-current opacity-70" />
   );
 }
+
 
 /* ================= CHEVRON ================= */
 

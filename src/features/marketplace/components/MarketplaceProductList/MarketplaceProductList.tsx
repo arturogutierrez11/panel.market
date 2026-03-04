@@ -22,21 +22,29 @@ export default function MarketplaceProductList({ marketplaceId }: Props) {
   } = useMarketplaceProducts({ marketplaceId });
 
   return (
-    <div className="relative rounded-2xl bg-white p-3 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-6">
+    <div className="relative rounded-xl border border-gray-200 bg-white p-5 shadow-sm space-y-6">
+
       {/* ================= HEADER ================= */}
-      <div className="flex justify-between items-center">
-        <p className="text-xs text-gray-500">
-          Publicaciones activas y sincronizadas
-        </p>
+      <div className="flex items-center justify-between">
+
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900">
+            Productos publicados
+          </h3>
+
+          <p className="text-xs text-gray-500">
+            {items.length} productos cargados
+          </p>
+        </div>
 
         <button
           onClick={refresh}
           disabled={loading}
           className="
             inline-flex items-center gap-2
-            rounded-full
+            rounded-lg
             border border-gray-200
-            px-4 py-2
+            px-3 py-1.5
             text-xs font-medium text-gray-700
             hover:bg-gray-50
             disabled:opacity-40
@@ -45,13 +53,25 @@ export default function MarketplaceProductList({ marketplaceId }: Props) {
         >
           ⟳ Actualizar
         </button>
+
       </div>
 
       {/* ================= GRID ================= */}
       <div className="relative">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+        <div
+          className="
+            grid
+            grid-cols-2
+            sm:grid-cols-3
+            md:grid-cols-4
+            lg:grid-cols-5
+            xl:grid-cols-6
+            gap-4
+          "
+        >
           {(loading && items.length === 0) &&
-            Array.from({ length: 10 }).map((_, i) => (
+            Array.from({ length: 12 }).map((_, i) => (
               <MarketplaceProductSkeleton key={i} />
             ))}
 
@@ -78,28 +98,33 @@ export default function MarketplaceProductList({ marketplaceId }: Props) {
             "
           >
             <BrandSpinner />
+
             <span className="text-xs text-gray-500">
               Cargando productos…
             </span>
+
           </div>
         )}
+
       </div>
 
       {/* ================= PAGINATION ================= */}
-      <div className="flex justify-between items-center pt-4">
+      <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+
         <span className="text-xs text-gray-500">
           Página <b className="text-gray-900">{page}</b> de{' '}
           <b className="text-gray-900">{totalPages || 1}</b>
         </span>
 
         <div className="flex items-center gap-2">
+
           <button
             onClick={fetchPrev}
             disabled={page === 1 || paging}
             className="
-              rounded-full
+              rounded-lg
               border border-gray-200
-              px-4 py-2
+              px-3 py-1.5
               text-xs font-medium text-gray-700
               hover:bg-gray-50
               disabled:opacity-30
@@ -113,9 +138,9 @@ export default function MarketplaceProductList({ marketplaceId }: Props) {
             onClick={fetchNext}
             disabled={page === totalPages || paging}
             className="
-              rounded-full
+              rounded-lg
               border border-gray-200
-              px-4 py-2
+              px-3 py-1.5
               text-xs font-medium text-gray-700
               hover:bg-gray-50
               disabled:opacity-30
@@ -124,8 +149,11 @@ export default function MarketplaceProductList({ marketplaceId }: Props) {
           >
             Siguiente →
           </button>
+
         </div>
+
       </div>
+
     </div>
   );
 }
