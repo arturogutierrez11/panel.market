@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { ProductsFilters } from '@/src/core/entitis/madre/analitics/products-analitycs/ProductsFilters';
 import { Marketplace } from '@/src/core/entitis/madre/analitics/favorites/folder/status/marketplace.types';
+import { toast } from "sonner";
+
 
 type Props = {
   folders: Marketplace[];
@@ -23,34 +25,50 @@ export function SaveToFolderBar({
   filters,
   onSaveFlow,
   onCreateFolder,
-  loading,
 }: Props) {
 
   const [selectedFolderId, setSelectedFolderId] = useState<number>();
   const [newFolderName, setNewFolderName] = useState('');
 
+  const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(false);
+
   const handleCreateFolder = async () => {
     if (!newFolderName) return;
 
-    await onCreateFolder(newFolderName);
-    setNewFolderName('');
+    try {
+      setCreating(true);
+
+      await onCreateFolder(newFolderName);
+      setNewFolderName('');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleSave = async () => {
     if (!selectedFolderId) {
-      alert('Seleccioná una carpeta');
+     toast.warning("Seleccioná una carpeta")
       return;
     }
 
-    await onSaveFlow(selectedFolderId, filters);
+    try {
+      setSaving(true);
 
-    alert('Selección y segmento guardados');
+      await onSaveFlow(selectedFolderId, filters);
+
+      toast.success("Productos guardados en la carpeta")
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-4 shadow-md">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-6 shadow-md">
 
-      <div className="flex gap-4">
+      {/* GUARDAR EN CARPETA */}
+
+      <div className="flex gap-4 items-center">
 
         <select
           value={selectedFolderId ?? ''}
@@ -59,9 +77,10 @@ export function SaveToFolderBar({
               e.target.value ? Number(e.target.value) : undefined
             )
           }
-          className="flex-1 h-10 px-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
+          className="flex-1 h-11 px-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:ring-2 focus:ring-green-600"
         >
           <option value="">Seleccionar carpeta</option>
+
           {folders.map((folder) => (
             <option key={folder.id} value={folder.id}>
               {folder.name}
@@ -71,27 +90,55 @@ export function SaveToFolderBar({
 
         <button
           onClick={handleSave}
-          disabled={loading}
-          className="px-6 py-2 bg-green-600 rounded-lg text-white hover:bg-green-500"
+          disabled={saving}
+          className="
+            px-6 py-2.5
+            bg-green-600 hover:bg-green-500
+            rounded-lg text-white
+            flex items-center gap-2
+            disabled:opacity-60
+            disabled:cursor-not-allowed
+            transition
+          "
         >
-          {loading ? 'Guardando...' : 'Guardar'}
+          {saving && (
+            <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+          )}
+
+          {saving ? 'Guardando...' : 'Guardar'}
         </button>
       </div>
 
-      <div className="flex gap-4">
+      {/* CREAR CARPETA */}
+
+      <div className="flex gap-4 items-center">
+
         <input
           type="text"
           value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
           placeholder="Nueva carpeta..."
-          className="flex-1 h-10 px-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
+          className="flex-1 h-11 px-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:ring-2 focus:ring-blue-600"
         />
 
         <button
           onClick={handleCreateFolder}
-          className="px-6 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-500"
+          disabled={creating}
+          className="
+            px-6 py-2.5
+            bg-blue-600 hover:bg-blue-500
+            rounded-lg text-white
+            flex items-center gap-2
+            disabled:opacity-60
+            disabled:cursor-not-allowed
+            transition
+          "
         >
-          Crear
+          {creating && (
+            <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+          )}
+
+          {creating ? 'Creando...' : 'Crear'}
         </button>
       </div>
     </div>

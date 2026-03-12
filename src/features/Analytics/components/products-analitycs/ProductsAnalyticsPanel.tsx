@@ -46,7 +46,10 @@ export default function ProductsAnalyticsPanel() {
     search: searchBrand,
   } = useBrands(brandsRepo);
 
-  const { categories } = useGetCategories(getCategoriesRepo);
+const {
+  categories,
+  loading: categoriesLoading
+} = useGetCategories(getCategoriesRepo)
 
   const {
     results: searchedCategories,
@@ -104,17 +107,35 @@ export default function ProductsAnalyticsPanel() {
 
   /* ================= UI ================= */
 
-  return (
-    <div className="space-y-14">
+return (
+  <div className="space-y-12">
 
-      {/* ================= FILTER PANEL ================= */}
+    {/* ================= FILTER PANEL ================= */}
 
-      <div className="bg-zinc-900/60 backdrop-blur-lg
-                      p-10 rounded-3xl
-                      border border-zinc-800/60
-                      shadow-2xl shadow-black/30
-                      grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+    <div className="space-y-6">
 
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-white">
+          Filtros de productos
+        </h2>
+
+        <span className="text-xs text-zinc-500">
+          Analiza tu catálogo y crea segmentos
+        </span>
+      </div>
+
+      <div
+        className="
+        bg-zinc-900/60 backdrop-blur-lg
+        p-10 rounded-3xl
+        border border-zinc-800/60
+        shadow-2xl shadow-black/30
+        grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3
+        gap-8
+      "
+      >
+        {/* BRAND */}
         <BrandSelect
           brands={brands}
           loading={brandsLoading}
@@ -124,16 +145,17 @@ export default function ProductsAnalyticsPanel() {
           onSelect={(brand) => updateFilter('brand', brand)}
         />
 
+        {/* CATEGORY */}
         <CategorySelect
-          categories={categoriesToRender}
-          loading={categoriesSearching}
-          search={(value) => {
-            setCategorySearch(value);
-            searchCategory(value);
-          }}
+          categories={categories}
+          categoriesLoading={categoriesLoading}
+          searchResults={searchedCategories}
+          searchLoading={categoriesSearching}
+          onSearch={searchCategory}
           onSelect={(id) => updateFilter('categoryId', id)}
         />
 
+        {/* FOLDER */}
         <FolderSelect
           folders={folders}
           loading={foldersLoading}
@@ -141,6 +163,7 @@ export default function ProductsAnalyticsPanel() {
           onSelect={(id) => updateFilter('inMarketplace', id)}
         />
 
+        {/* PRICE */}
         <NumberInput
           label="Precio mínimo"
           value={filters.minPrice}
@@ -153,15 +176,17 @@ export default function ProductsAnalyticsPanel() {
           onChange={(v) => updateFilter('maxPrice', v)}
         />
 
+        {/* VISITS */}
         <VisitsRange
-  min={filters.minVisits}
-  max={filters.maxVisits}
-  onChange={({ min, max }) => {
-    updateFilter('minVisits', min);
-    updateFilter('maxVisits', max);
-  }}
-/>
+          min={filters.minVisits}
+          max={filters.maxVisits}
+          onChange={({ min, max }) => {
+            updateFilter('minVisits', min)
+            updateFilter('maxVisits', max)
+          }}
+        />
 
+        {/* ORDERS */}
         <NumberInput
           label="Órdenes mínimas"
           value={filters.minOrders}
@@ -174,16 +199,19 @@ export default function ProductsAnalyticsPanel() {
           onChange={(v) => updateFilter('maxOrders', v)}
         />
 
+        {/* MARKETPLACE STATUS */}
         <MarketplaceStatusSelector
           value={filters.marketplaceStatus}
           onChange={(v) => updateFilter('marketplaceStatus', v)}
         />
 
+        {/* PRODUCT STATUS */}
         <ProductStatusSelector
           value={filters.status}
           onChange={(v) => updateFilter('status', v)}
         />
 
+        {/* EXCLUDE MARKETPLACES */}
         <TextInput
           label="Excluir marketplaces"
           value={filters.excludeMarketplace?.join(',')}
@@ -191,66 +219,107 @@ export default function ProductsAnalyticsPanel() {
           onChange={(v) =>
             updateFilter(
               'excludeMarketplace',
-              v ? v.split(',').map(x => x.trim()) : undefined
+              v ? v.split(',').map((x) => x.trim()) : undefined
             )
           }
         />
       </div>
+    </div>
 
-      {/* ================= ACTIONS ================= */}
-<ActiveFilters
-  filters={filters}
-  onRemove={(key) =>
-    setFilters((prev) => ({
-      ...prev,
-      [key]: undefined,
-    }))
-  }
-/>
-      <div className="flex gap-4">
-        <button
-          onClick={handleApplyFilters}
-          className="px-8 py-3 rounded-2xl
-                     bg-blue-600 hover:bg-blue-500
-                     text-white font-medium
-                     shadow-lg shadow-blue-600/20
-                     transition-all duration-200"
-        >
-          Aplicar filtros
-        </button>
+    {/* ================= ACTIVE FILTERS ================= */}
 
-        <button
-          onClick={clearAllFilters}
-          className="px-8 py-3 rounded-2xl
-                     bg-zinc-800 hover:bg-zinc-700
-                     text-zinc-300
-                     border border-zinc-700
-                     transition-all duration-200"
-        >
-          Limpiar filtros
-        </button>
+    <ActiveFilters
+      filters={filters}
+      onRemove={(key) =>
+        setFilters((prev) => ({
+          ...prev,
+          [key]: undefined,
+        }))
+      }
+    />
+
+    {/* ================= ACTION BUTTONS ================= */}
+
+    <div className="flex items-center gap-4">
+      <button
+        onClick={handleApplyFilters}
+        className="
+        px-8 py-3 rounded-2xl
+        bg-blue-600 hover:bg-blue-500
+        text-white font-semibold
+        shadow-lg shadow-blue-600/20
+        transition-all duration-200
+      "
+      >
+        Aplicar filtros
+      </button>
+
+      <button
+        onClick={clearAllFilters}
+        className="
+        px-8 py-3 rounded-2xl
+        bg-zinc-800 hover:bg-zinc-700
+        text-zinc-300
+        border border-zinc-700
+        transition-all duration-200
+      "
+      >
+        Limpiar filtros
+      </button>
+    </div>
+
+    {/* ================= OVERVIEW ================= */}
+
+    {overviewLoading && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="w-10 h-10 border-4 border-zinc-700 border-t-blue-500 rounded-full animate-spin" />
       </div>
+    )}
 
-      {/* ================= OVERVIEW ================= */}
+    {overview && (
+      <div className="space-y-8">
 
-      {overviewLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="w-10 h-10 border-4 border-zinc-700 border-t-blue-500 rounded-full animate-spin" />
+        {/* METRICS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <StatCard label="Productos" value={overview.totalProducts} />
+          <StatCard label="Órdenes" value={overview.totalOrders} />
+          <StatCard label="Visitas" value={overview.totalVisits} />
+          <StatCard
+            label="Revenue"
+            value={`$${overview.totalRevenue.toLocaleString()}`}
+          />
+          <StatCard
+            label="Precio Promedio"
+            value={`$${overview.avgPrice.toFixed(2)}`}
+          />
+          <StatCard
+            label="Ticket Promedio"
+            value={`$${overview.avgTicket.toFixed(2)}`}
+          />
         </div>
-      )}
 
-      {overview && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <StatCard label="Productos" value={overview.totalProducts} />
-            <StatCard label="Órdenes" value={overview.totalOrders} />
-            <StatCard label="Visitas" value={overview.totalVisits} />
-            <StatCard label="Revenue" value={`$${overview.totalRevenue.toLocaleString()}`} />
-            <StatCard label="Precio Promedio" value={`$${overview.avgPrice.toFixed(2)}`} />
-            <StatCard label="Ticket Promedio" value={`$${overview.avgTicket.toFixed(2)}`} />
-          </div>
+        {/* SAVE TO FOLDER */}
+        {overview.totalProducts > 0 && (
+          <div
+            className="
+            p-6
+            bg-zinc-900/60
+            border border-zinc-800
+            rounded-2xl
+            shadow-lg
+            flex flex-col gap-4
+          "
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">
+                Guardar productos
+              </h3>
 
-          {overview.totalProducts > 0 && (
+              <span className="text-xs text-zinc-500">
+                {overview.totalProducts} productos encontrados
+              </span>
+            </div>
+
             <SaveToFolderBar
               folders={folders}
               filters={filters}
@@ -258,11 +327,12 @@ export default function ProductsAnalyticsPanel() {
               onCreateFolder={handleCreateFolder}
               loading={savingFlow || creatingFolder}
             />
-          )}
-        </>
-      )}
-    </div>
-  );
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+)
 }
 
 type ProductStatus =

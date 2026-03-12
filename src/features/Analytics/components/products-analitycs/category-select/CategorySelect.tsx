@@ -1,120 +1,127 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useRef } from 'react';
-import { Category } from '@/src/core/entitis/madre/analitics/products-analitycs/Category';
+import { useState } from 'react'
+import { Category } from '@/src/core/entitis/madre/analitics/products-analitycs/Category'
 
 type Props = {
-  categories: Category[];
-  loading: boolean;
-  search: (query: string) => void;
-  onSelect: (categoryId: string) => void;
-};
+  categories: Category[]
+  categoriesLoading: boolean
+
+  searchResults: Category[]
+  searchLoading: boolean
+  onSearch: (query: string) => void
+
+  onSelect: (categoryId: string) => void
+}
 
 export function CategorySelect({
   categories,
-  loading,
-  search,
+  categoriesLoading,
+  searchResults,
+  searchLoading,
+  onSearch,
   onSelect,
 }: Props) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [selectedLabel, setSelectedLabel] = useState('');
 
-  const ref = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState('')
 
-  /* Close dropdown when clicking outside */
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  /* Debounced search */
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      search(query);
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [query, search]);
-
-  const handleClear = () => {
-    setSelectedLabel('');
-    setQuery('');
-    onSelect('');
-    search('');
-  };
-
-  const hasValue = selectedLabel || query;
+  const resultsToRender = query ? searchResults : []
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="flex flex-col gap-5 p-4 bg-zinc-950/40 border border-zinc-800 rounded-2xl">
 
-      <label className="text-sm text-zinc-400">Categoría</label>
+      {/* SELECT DE CATEGORIAS */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs uppercase tracking-wide text-zinc-500">
+          Categoría
+        </label>
 
-      <div className="relative">
-        <input
-          type="text"
-          className="w-full mt-2 p-2 pr-8 bg-zinc-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 transition"
-          placeholder="Buscar categoría..."
-          value={selectedLabel || query}
-          onFocus={() => setOpen(true)}
-          onChange={(e) => {
-            setSelectedLabel('');
-            setQuery(e.target.value);
-          }}
-        />
-
-        {/* BOTÓN LIMPIAR */}
-        {hasValue && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-2 top-[14px] text-zinc-400 hover:text-white transition"
+        {categoriesLoading ? (
+          <div className="flex items-center gap-2 text-sm text-zinc-400 py-2">
+            <div className="w-4 h-4 border-2 border-zinc-600 border-t-blue-500 rounded-full animate-spin"></div>
+            Cargando categorías...
+          </div>
+        ) : (
+          <select
+            className="w-full p-2.5 bg-zinc-800 rounded-xl border border-zinc-700
+                       text-sm text-zinc-200
+                       focus:ring-2 focus:ring-blue-500 focus:outline-none
+                       transition"
+            onChange={(e) => onSelect(e.target.value)}
           >
-            ✕
-          </button>
+            <option value="">Seleccionar categoría</option>
+
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {'—'.repeat(c.level - 1)} {c.name}
+              </option>
+            ))}
+          </select>
         )}
       </div>
 
-      {open && (
-        <div className="absolute z-50 mt-2 w-full bg-zinc-900 border border-zinc-700 rounded max-h-64 overflow-y-auto shadow-lg">
+      {/* BUSCADOR */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs uppercase tracking-wide text-zinc-500">
+          Buscar categoría
+        </label>
 
-          {loading && (
-            <div className="p-3 text-sm text-zinc-400">
-              Buscando...
-            </div>
-          )}
+        <input
+          type="text"
+          placeholder="Ej: zapatillas"
+          value={query}
+          className="w-full p-2.5 bg-zinc-800 rounded-xl border border-zinc-700
+                     text-sm text-zinc-200 placeholder:text-zinc-500
+                     focus:ring-2 focus:ring-blue-500 focus:outline-none
+                     transition"
+          onChange={(e) => {
+            const value = e.target.value
+            setQuery(value)
 
-          {!loading && categories.length === 0 && (
-            <div className="p-3 text-sm text-zinc-500 text-center">
-              Sin resultados
-            </div>
-          )}
+            if (value.length > 2) {
+              onSearch(value)
+            }
+          }}
+        />
 
-          {!loading && categories.map((c) => (
-            <div
-              key={c.id}
-              className="p-3 text-sm hover:bg-zinc-800 cursor-pointer transition"
-              onClick={() => {
-                setSelectedLabel(
-                  `${'—'.repeat(c.level - 1)} ${c.name}`
-                );
-                setOpen(false);
-                onSelect(c.id);
-              }}
-            >
-              {'—'.repeat(c.level - 1)} {c.name}
-            </div>
-          ))}
+        {/* RESULTADOS BUSQUEDA */}
+        {query && (
+          <div className="mt-1 max-h-44 overflow-y-auto 
+                          bg-zinc-900 border border-zinc-800 rounded-xl 
+                          shadow-inner">
 
-        </div>
-      )}
+            {searchLoading && (
+              <div className="flex items-center justify-center p-4 text-sm text-zinc-400">
+                <div className="w-4 h-4 border-2 border-zinc-600 border-t-blue-500 rounded-full animate-spin mr-2"></div>
+                Buscando categorías...
+              </div>
+            )}
+
+            {!searchLoading && resultsToRender.length === 0 && (
+              <div className="p-4 text-sm text-zinc-500 text-center">
+                Sin resultados
+              </div>
+            )}
+
+            {!searchLoading &&
+              resultsToRender.map((c) => (
+                <div
+                  key={c.id}
+                  className="px-3 py-2 text-sm text-zinc-200 
+                             hover:bg-zinc-800 cursor-pointer 
+                             transition-colors"
+                  onClick={() => {
+                    onSelect(c.id)
+                    setQuery('')
+                  }}
+                >
+                  {'—'.repeat(c.level - 1)} {c.name}
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+
     </div>
-  );
+  )
 }

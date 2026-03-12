@@ -8,17 +8,21 @@ export function useSearchCategories(repository: ISearchCategoriesRepository) {
   const [results, setResults] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const search = async (query: string) => {
-    if (!query) return;
+const search = async (query: string) => {
 
-    try {
-      setLoading(true);
-      const data = await repository.execute(query);
-      setResults(data);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!query || query.length < 2) {
+    setResults([])
+    return
+  }
+
+  try {
+    setLoading(true)
+    const data = await repository.execute(query)
+    setResults(data)
+  } finally {
+    setLoading(false)
+  }
+}
 
   return {
     results,
