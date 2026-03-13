@@ -27,7 +27,6 @@ export default function FavoritesDashboard() {
 
   const selected = marketplaces.find(m => m.id === selectedId);
 
-  // ✅ Ahora usamos el hook liviano
   const { data: overview, loading: loadingOverview } =
     useMarketplaceOverview(selectedId);
 
@@ -63,8 +62,8 @@ export default function FavoritesDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-zinc-400 animate-pulse">
-        Cargando carpetas...
+      <div className="flex items-center justify-center h-64">
+        <Spinner />
       </div>
     );
   }
@@ -108,7 +107,6 @@ export default function FavoritesDashboard() {
 
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-            {/* Left */}
             <div className="space-y-2">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-white">
@@ -122,7 +120,6 @@ export default function FavoritesDashboard() {
               </p>
             </div>
 
-            {/* Right */}
             <div className="flex flex-wrap gap-3">
 
               <button
@@ -158,16 +155,17 @@ export default function FavoritesDashboard() {
 
           {/* ================= OVERVIEW ================= */}
 
-          <div className="transition-all duration-300">
+          <div className="transition-all duration-300 min-h-[200px] flex items-center justify-center">
+
             {loadingOverview ? (
-              <div className="flex justify-center py-16">
-                <div className="text-zinc-500 animate-pulse text-sm">
-                  Cargando métricas...
-                </div>
-              </div>
+              <Spinner />
             ) : overview ? (
-              <MarketplaceOverviewCards overview={overview} />
+              <MarketplaceOverviewCards
+                overview={overview}
+                marketplaceId={selected.id}
+              />
             ) : null}
+
           </div>
 
         </div>
@@ -181,6 +179,17 @@ export default function FavoritesDashboard() {
         onConfirm={handleDelete}
       />
 
+    </div>
+  );
+}
+
+
+/* ================= SPINNER ================= */
+
+function Spinner() {
+  return (
+    <div className="flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-zinc-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 }

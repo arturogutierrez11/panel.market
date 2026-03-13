@@ -41,7 +41,7 @@ export function FolderSelect({
 
   return (
     <div className="relative" ref={ref}>
-      <label className="text-sm text-zinc-400">Carpeta</label>
+      <label className="text-sm text-zinc-400">Selecciona todos los productos de una carpeta existente</label>
 
       <div
         className="relative mt-2"

@@ -21,29 +21,48 @@ export class HttpClient {
     this.headers = config.headers ?? {};
   }
 
-  private async request<T>(
-    method: HttpMethod,
-    path: string,
-    body?: unknown
-  ): Promise<T> {
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.headers,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-      cache: 'no-store',
-    });
+private async request<T>(
+  method: HttpMethod,
+  path: string,
+  body?: unknown
+): Promise<T> {
 
-    if (!res.ok) {
-      throw new HttpError(res.status, await res.text());
-    }
+  const url = `${this.baseUrl}${path}`;
 
-    return res.json().catch(() => null as T);
+  console.log("📡 HTTP REQUEST");
+  console.log("method:", method);
+  console.log("url:", url);
+  console.log("body:", body);
+
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...this.headers,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: 'no-store',
+  });
+
+  console.log("📡 HTTP RESPONSE STATUS:", res.status);
+
+  if (!res.ok) {
+
+    const text = await res.text();
+
+    console.error("❌ HTTP ERROR");
+    console.error("url:", url);
+    console.error("status:", res.status);
+    console.error("response:", text);
+
+    throw new HttpError(res.status, text);
   }
 
+  return res.json().catch(() => null as T);
+}
+
   get<T>(path: string) {
+    
     return this.request<T>('GET', path);
   }
 

@@ -19,6 +19,7 @@ export default function CategoryDrilldown({ rootCategoryId }: Props) {
   const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>([]);
 
   const { items, summary, loading } = useChildrenPerformance(parentId);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   /* RESET WHEN ROOT CHANGES */
   useEffect(() => {
@@ -40,6 +41,18 @@ export default function CategoryDrilldown({ rootCategoryId }: Props) {
     setBreadcrumb(newTrail);
     setParentId(newTrail[index].id);
   }
+
+  function copyCategoryId(id: string, e: React.MouseEvent) {
+  e.stopPropagation();
+
+  navigator.clipboard.writeText(id);
+
+  setCopiedId(id);
+
+  setTimeout(() => {
+    setCopiedId(null);
+  }, 1200);
+}
 
   return (
     <div className="rounded-2xl p-8 bg-zinc-950 border border-zinc-800 text-white shadow-xl space-y-6">
@@ -174,7 +187,31 @@ export default function CategoryDrilldown({ rootCategoryId }: Props) {
                   {/* CATEGORY */}
                   <td className="py-3 px-4 font-medium text-white flex items-center justify-between">
 
-                    <span>{item.categoryName}</span>
+                   <span className="flex items-center gap-2">
+
+  <span>{item.categoryName}</span>
+
+  <span className="text-zinc-600">—</span>
+
+  <button
+    onClick={(e) => copyCategoryId(item.categoryId, e)}
+    className="text-xs text-blue-400 hover:text-blue-300 cursor-copy flex items-center gap-1"
+  >
+    {item.categoryId}
+
+    {copiedId === item.categoryId ? (
+      <span className="text-green-400 text-[10px]">
+        Copiado
+      </span>
+    ) : (
+      <span className="text-zinc-500 text-[10px]">
+        copiar
+      </span>
+    )}
+
+  </button>
+
+</span>
 
                     <span className="text-zinc-500 text-xs">
                       →
@@ -254,3 +291,4 @@ function Summary({
     </div>
   );
 }
+

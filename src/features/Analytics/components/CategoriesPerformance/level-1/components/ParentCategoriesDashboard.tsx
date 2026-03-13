@@ -140,7 +140,10 @@ export default function ParentCategoriesDashboard() {
                       <div className="bg-zinc-900/95 backdrop-blur p-4 rounded-xl text-xs border border-zinc-800 shadow-2xl">
 
                         <div className="font-semibold text-white mb-3 text-sm">
-                          {d.categoryName}
+                          {d.categoryName} 
+                        </div>
+                        <div className="font-semibold text-white mb-3 text-sm">
+                          {d.categoryId} 
                         </div>
 
                         <div className="space-y-1 text-zinc-300">
